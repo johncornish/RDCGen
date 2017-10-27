@@ -8,6 +8,7 @@ setup(
         'click',
         'ldap3',
         'PyYAML',
+        'lxml',
     ],
     entry_points='''
     [console_scripts]

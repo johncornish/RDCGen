@@ -1,5 +1,6 @@
-import yaml, re
-from os.path import isfile
+import yaml, re, os.path
+from lxml.etree import Element, ElementTree, SubElement, tostring
+
 from functools import reduce
 
 class GroupTree:
@@ -9,19 +10,54 @@ class GroupTree:
         else:
             self._datafile = datafile
 
-        if not isfile(self._datafile):
+        if not os.path.isfile(self._datafile):
             print("{} not found. It will be created on save.".format(self._datafile))
             
         self._datatree = {}
 
+    def name(self):
+        base = os.path.basename(self._datafile)
+        return os.path.splitext(base)[0]
+    
+    def to_xml(self):
+        def recursive_build(path, root):
+            for key in self.keys_from_path(path):
+                sub_path = path + [key]
+                branch = self.branch_from_path(sub_path)
+                
+                node = SubElement(root, 'group')
+                props = SubElement(node, 'properties')
+                SubElement(props, 'name').text = key
+
+                for k, v in branch['_servers'].items():
+                    server = SubElement(node, 'server')
+                    sprops = SubElement(server, 'properties')
+                    SubElement(sprops, 'name').text = k
+
+                sub_keys = self.keys_from_path(sub_path)
+                if len(sub_keys) > 0:
+                    recursive_build(sub_path, node)
+            
+        root = Element('RDCMan', programVersion='2.7', schemaVersion='3')
+        file_node = SubElement(root, 'file')
+        file_props = SubElement(file_node, 'properties')
+        SubElement(file_props, 'expanded').text = 'True'
+        SubElement(file_props, 'name').text = self.name()
+        recursive_build([], file_node)
+        return root
+        
     def dump_dict(d):
         return yaml.dump(d, default_flow_style=False)
            
     def save(self):
-        self.normalize_tree()
-        output = str(self)
-        with open(self._datafile, 'w') as f:
-            f.write(output)
+        root = self.to_xml()
+        ElementTree(root).write(
+            self._datafile,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding='utf-8',
+        )
+        print("Success?")
 
     def __str__(self):
         return GroupTree.dump_dict(self._datatree)
