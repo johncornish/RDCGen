@@ -2,8 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='rdcgen',
-    version='0.1',
-    py_modules=find_packages(),
+    description='Generate RDCMan config files from Active Directory',
+    author='John Frederick Cornish IV',
+    licence='GPLv3',
+    version='1.0',
+    packages=['rdcgen'],
     install_requires=[
         'click',
         'ldap3',
