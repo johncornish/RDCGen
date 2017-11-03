@@ -2,11 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name='rdcgen',
+    packages=['rdcgen'],
+    version='1.0',
+    license='GPLv3',
     description='Generate RDCMan config files from Active Directory',
     author='John Frederick Cornish IV',
-    licence='GPLv3',
-    version='1.0',
-    packages=['rdcgen'],
+    author_email='johncornishthe4th@gmail.com',
+    url='https://github.com/johncornish/RDCGen',
+    download_url='https://github.com/johncornish/RDCGen/archive/1.0.tar.gz',
     install_requires=[
         'click',
         'ldap3',
